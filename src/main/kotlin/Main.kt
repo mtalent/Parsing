@@ -1,48 +1,101 @@
 import java.io.File
 
-lateinit var results : List<Result>
 
-fun main(args: Array<String>) {
-
-
-
+fun main() {
     val fileName = "data.txt"
-
     var file = File(fileName)
-
     file = writeLines(file)
-
     val returnedList = readDataTxt(file)
-
-
-
-    results = doLogic(returnedList)
-
-    println("data.txt as list: $results")
-
-
-
-
+    val results = buildObjects(returnedList)
+    val resString = doLogic(results)
+    println(resString)
 }
 
-fun doLogic(list : List<String>): List<Result> {
+fun doLogic(results: List<Result>): String {
 
-    var lstTemp : MutableList<Result> = mutableListOf<Result>()
+    var countRegPrice = 0
+    var countClearancePrice = 0
+    var clearanceHigh = 0.00
+    var clearanceLow = 0.00
+    var priceInCartCount = 0
+    var regularPriceHigh = 0.00
+    var regularPriceLow = 0.00
+
+
+    results.forEach {
+
+       if (it.quantity!! > 3) {
+           if (it.regularPrice == it.clearancePrice) {
+
+               if (regularPriceHigh == 0.00) {
+                   regularPriceHigh = it.regularPrice!!
+                   regularPriceLow = it.regularPrice
+               }
+               countRegPrice++
+               if (regularPriceHigh < it.regularPrice!!)
+                   regularPriceHigh = it.regularPrice
+               if (regularPriceLow > it.regularPrice)
+                   regularPriceLow = it.regularPrice
+               if (it.cart == true)
+                   priceInCartCount++
+
+           }else {
+               if (clearanceHigh == 0.00) {
+                   clearanceHigh = it.clearancePrice!!
+                   clearanceLow = it.clearancePrice
+               }
+               countClearancePrice++
+               if (clearanceHigh < it.clearancePrice!!)
+                   clearanceHigh = it.clearancePrice
+               if (clearanceLow > it.clearancePrice)
+                   clearanceLow = it.clearancePrice
+               if (it.cart == true)
+                   priceInCartCount++
+           }
+       }
+    }
+
+    if (countClearancePrice < 2) {
+        return String.format(
+            "Clearance Price : %d products  @ %.2f\n" +
+                    "Normal Price : %d @ %.2f - %.2f\n" +
+                    "Price in Cart : %d products", countClearancePrice, clearanceHigh,
+            countRegPrice, regularPriceLow, regularPriceHigh, priceInCartCount
+        )
+    } else if (countRegPrice < 2) {
+        return String.format(
+            "Clearance Price : %d products  @ %.2f - %.2f\n" +
+                    "Normal Price : %d @ %.2f\n" +
+                    "Price in Cart : %d products", countClearancePrice, clearanceHigh, clearanceLow,
+            countRegPrice, regularPriceHigh, priceInCartCount
+        )
+    } else {
+        return String.format(
+            "Clearance Price : %d products  @ %.2f - %.2f\n" +
+                    "Normal Price : %d @ %.2f - %.2f\n" +
+                    "Price in Cart : %d products", countClearancePrice, clearanceHigh, clearanceLow,
+            countRegPrice, regularPriceLow, regularPriceHigh, priceInCartCount
+        )
+    }
+}
+fun buildObjects(list : List<String>): List<Result> {
+
+    val lstTemp : MutableList<Result> = mutableListOf()
     list.forEach { line ->
         run {
             val arrayTemp = line.split(",")
-            if (arrayTemp[0] == "Type") {
-                val tempResult = Result(arrayTemp[0], arrayTemp[1], arrayTemp[2], null, null, null,
-                null)
-                lstTemp.add(tempResult)
-            } else {
-                val tempResult = Result(
-                    arrayTemp[0], null, null, arrayTemp[1].toDouble(),
-                    arrayTemp[2].toDouble(), arrayTemp[3].toInt(), arrayTemp[4].toBoolean()
-                )
-                lstTemp.add(tempResult)
+            if (arrayTemp[0] == "Product") {
+               if (arrayTemp[1].toDouble() > arrayTemp[2].toDouble()) {
+                   val tempResult = Result(Type.CLEARANCE, arrayTemp[1].toDouble(),
+                       arrayTemp[2].toDouble(), arrayTemp[3].toInt(), arrayTemp[4].toBoolean())
+                   lstTemp.add(tempResult)
+               }else{
+                   val tempResult = Result(Type.NORMAL, arrayTemp[1].toDouble(),
+                       arrayTemp[2].toDouble(), arrayTemp[3].toInt(), arrayTemp[4].toBoolean())
+                   lstTemp.add(tempResult)
+               }
+               }
             }
-        }
     }
     return lstTemp
 }
@@ -64,17 +117,16 @@ fun readDataTxt(file: File): List<String> {
     return file.readLines()
 }
 
-
-
-
-
 data class Result (
-    val priceType : String? = null,
-    val identification : String? = null,
-    val displayName : String? = null,
-    val regularPrice : Double? = null,
-    val clearancePrice : Double? = null,
-    val quantity : Int? = null,
-    val priceInCart : Boolean? = null
-)
+    val type : Type,
+    val regularPrice: Double?,
+    val clearancePrice: Double?,
+    val quantity: Int?,
+    val cart : Boolean?
+    )
+
+enum class Type {
+    NORMAL,
+    CLEARANCE
+}
 
