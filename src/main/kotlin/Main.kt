@@ -4,14 +4,15 @@ import kotlin.random.nextInt
 
 
 fun main() {
-    val file = File("data.txt").also {
-        writeLines(it)
-    }
-    val returnedList = readDataTxt(file)
-    val results = buildObjects(returnedList)
-    val counts = doLogic(results)
-    formatStrings(counts).also {
-        println(it)
+    File("data.txt").also { file ->
+        writeLines(file).also { file ->
+            val returnedList = readDataTxt(file)
+            val results = buildObjects(returnedList)
+            val counts = doLogic(results)
+            formatStrings(counts).also {
+                println(it)
+            }
+        }
     }
 }
 
