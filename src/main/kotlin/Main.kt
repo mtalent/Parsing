@@ -1,4 +1,6 @@
 import java.io.File
+import kotlin.random.Random
+import kotlin.random.nextInt
 
 
 fun main() {
@@ -17,34 +19,37 @@ fun formatStrings(counts: Counts): String {
 
     val builder = StringBuilder()
 
+
     val stringClearance = if (counts.countClearancePrice < 2) {
-        String.format("Clearance Price : %d products  @ %.2f"
-            ,counts.clearanceHigh)
+        String.format("Clearance Price: %d products @ %.2f"
+            ,counts.countClearancePrice, counts.clearanceHigh)
     }else {
-        String.format("Clearance Price : %d products  @ %.2f - %.2f"
-            ,counts.clearanceHigh, counts.clearanceLow)
+        String.format("Clearance Price: %d products @ %.2f-%.2f",
+            counts.countClearancePrice, counts.clearanceHigh, counts.clearanceLow)
     }
     val stringNormal = if (counts.countRegPrice < 2) {
-        String.format("Regular Price : %d products  @ %.2f"
-            ,counts.regularPriceHigh)
+        String.format("Regular Price: %d products @ %.2f",
+            counts.countRegPrice, counts.regularPriceHigh)
     }else {
-        String.format("Regular Price : %d products  @ %.2f - %.2f"
-            ,counts.regularPriceHigh, counts.regularPriceLow)
+        String.format("Regular Price: %d products @ %.2f-%.2f",
+            counts.countRegPrice,counts.regularPriceHigh, counts.regularPriceLow)
     }
-    val stringCart = String.format("Price in Cart", counts.priceInCartCount)
+    val stringCart = String.format("Price in Cart: %d products", counts.priceInCartCount)
+
+
 
     if (counts.countRegPrice > counts.countClearancePrice) {
         if (counts.priceInCartCount > counts.countRegPrice) {
-            builder.append(stringCart)
+            builder.appendLine(stringCart)
                 .appendLine(stringNormal)
                 .appendLine(stringClearance)
         } else {
             if (counts.priceInCartCount > counts.countClearancePrice) {
-                builder.append(stringNormal)
+                builder.appendLine(stringNormal)
                     .appendLine(stringCart)
                     .appendLine(stringClearance)
             } else {
-                builder.append(stringNormal)
+                builder.appendLine(stringNormal)
                     .appendLine(stringClearance)
                     .appendLine(stringCart)
             }
@@ -53,22 +58,57 @@ fun formatStrings(counts: Counts): String {
 
     }else {
         if (counts.priceInCartCount > counts.countClearancePrice) {
-            builder.append(stringCart)
+            builder.appendLine(stringCart)
                 .appendLine(stringClearance)
                 .appendLine(stringNormal)
         } else {
             if (counts.priceInCartCount > counts.countRegPrice) {
-                builder.append(stringClearance)
+                builder.appendLine(stringClearance)
                     .appendLine(stringCart)
                     .appendLine(stringNormal)
             } else {
-                builder.append(stringClearance)
+                builder.appendLine(stringClearance)
                     .appendLine(stringNormal)
                     .appendLine(stringCart)
             }
         }
     }
+    val lstTemp : MutableList<String> = mutableListOf()
+    lstTemp.add(stringCart)
+    lstTemp.add(stringClearance)
+    lstTemp.add(stringNormal)
 
+    if (counts.countRegPrice == counts.countClearancePrice) {
+        if (counts.priceInCartCount == counts.countRegPrice) {
+            val first = lstTemp[Random(System.nanoTime()).nextInt(0..2)].also {
+                lstTemp.remove(it)
+            }
+            val second = lstTemp[Random(System.nanoTime()).nextInt(0..2)].also {
+                lstTemp.remove(it)
+            }
+            builder.appendLine(first)
+                    .appendLine(second)
+                    .appendLine(lstTemp[0])
+            }else{
+            lstTemp.remove(stringCart)
+            val first = lstTemp[Random(System.nanoTime()).nextInt(0..2)].also {
+                lstTemp.remove(it)
+            }
+            if (counts.priceInCartCount > counts.regularPriceHigh) {
+
+                    builder.appendLine(stringCart)
+                            .appendLine(first)
+                            .appendLine(lstTemp[0])
+            }else {
+                builder.appendLine(first)
+                        .appendLine(lstTemp[0])
+                        .appendLine(stringCart)
+                }
+
+
+
+            }
+        }
     return  builder.toString()
 }
 
