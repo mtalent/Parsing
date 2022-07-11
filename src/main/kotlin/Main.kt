@@ -79,36 +79,41 @@ fun formatStrings(counts: Counts): String {
     lstTemp.add(stringNormal)
 
     if (counts.countRegPrice == counts.countClearancePrice) {
+        builder.clear()
         if (counts.priceInCartCount == counts.countRegPrice) {
             val first = lstTemp[Random(System.nanoTime()).nextInt(0..2)].also {
                 lstTemp.remove(it)
             }
-            val second = lstTemp[Random(System.nanoTime()).nextInt(0..2)].also {
+            val second = lstTemp[Random(System.nanoTime()).nextInt(0..1)].also {
                 lstTemp.remove(it)
             }
             builder.appendLine(first)
                     .appendLine(second)
                     .appendLine(lstTemp[0])
-            }else{
-            lstTemp.remove(stringCart)
-            val first = lstTemp[Random(System.nanoTime()).nextInt(0..2)].also {
-                lstTemp.remove(it)
             }
-            if (counts.priceInCartCount > counts.regularPriceHigh) {
 
-                    builder.appendLine(stringCart)
-                            .appendLine(first)
-                            .appendLine(lstTemp[0])
-            }else {
-                builder.appendLine(first)
-                        .appendLine(lstTemp[0])
-                        .appendLine(stringCart)
-                }
+    }
+    if (counts.priceInCartCount == counts.countRegPrice) {
+        builder.clear()
 
-
-
-            }
+        lstTemp.remove(stringClearance)
+        val first = lstTemp[Random(System.nanoTime()).nextInt(0..1)].also {
+            lstTemp.remove(it)
         }
+        builder.appendLine(first)
+            .appendLine(lstTemp[0])
+            .appendLine(stringClearance)
+    } else if (counts.priceInCartCount == counts.countClearancePrice) {
+        builder.clear()
+
+        lstTemp.remove(stringNormal)
+        val first = lstTemp[Random(System.nanoTime()).nextInt(0..1)].also {
+            lstTemp.remove(it)
+        }
+        builder.appendLine(first)
+            .appendLine(lstTemp[0])
+            .appendLine(stringNormal)
+    }
     return  builder.toString()
 }
 
@@ -186,8 +191,8 @@ fun writeLines(file : File) : File {
     file.writeText("Type,normal,Normal Price\n" +
             "Type,clearance,Clearance Price\n" +
             "Type,price_in_cart,Price In Cart\n" +
-            "Product,59.99,39.98,10,false\n" +
-            "Product,49.99,49.99,8,false\n" +
+            "Product,59.99,39.98,10,true\n" +
+            "Product,49.99,49.99,8,true\n" +
             "Product,79.99,49.98,5,false")
 
     return file
